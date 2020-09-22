@@ -1,0 +1,52 @@
+Sub processFallenAngel()
+  Sheets("Fallen Angel").Select
+  Range("B4").Select
+Do Until ActiveCell.Value = ""
+Call getFallenAngelData
+Loop
+End Sub
+
+
+Sub getFallenAngelData()
+Selection.Copy
+    Sheets("WebQuery").Select
+    Range("A1").Select
+    ActiveSheet.Paste
+    Range("A2").Select
+    With Selection.QueryTable
+        .Connection = "URL;https://ycharts.com/companies/" & Range("a1").Value & "/pe_ratio"
+        .WebSelectionType = xlEntirePage
+        .WebFormatting = xlWebFormattingNone
+        .WebPreFormattedTextToColumns = True
+        .WebConsecutiveDelimitersAsOne = True
+        .WebSingleBlockTextImport = False
+        .WebDisableDateRecognition = False
+        .WebDisableRedirections = False
+        .Refresh BackgroundQuery:=False
+    End With
+
+    Cells.Find(What:="Data for this Date Range", After:=ActiveCell, LookIn:= _
+        xlFormulas, LookAt:=xlWhole, SearchOrder:=xlByRows, SearchDirection:= _
+        xlNext, MatchCase:=True, SearchFormat:=False).Activate
+    ActiveCell.Offset(1, 1).Range("A1").Select
+    Selection.Copy
+    Sheets("Fallen Angel").Select
+    ActiveCell.Offset(0, 1).Range("A1").Select
+    ActiveSheet.Paste
+    Sheets("WebQuery").Select
+    Cells.Find(What:="PE Ratio Range, Past 5 Years", After:=ActiveCell, LookIn _
+        :=xlFormulas, LookAt:=xlWhole, SearchOrder:=xlByRows, SearchDirection:= _
+        xlNext, MatchCase:=True, SearchFormat:=False).Activate
+    ActiveCell.Offset(2, 1).Range("A1").Select
+    Selection.Copy
+    Sheets("Fallen Angel").Select
+    ActiveCell.Offset(0, 1).Range("A1").Select
+    ActiveSheet.Paste
+    ActiveCell.Offset(0, 1).Range("A1").Select
+    If ActiveCell.Offset(0, -2).Value < ActiveCell.Offset(0, -1).Value / 2 Then
+    ActiveCell.Value = "Yes"
+    Else
+    ActiveCell.Value = "No"
+    End If
+    ActiveCell.Offset(1, -3).Range("A1").Select
+End Sub
